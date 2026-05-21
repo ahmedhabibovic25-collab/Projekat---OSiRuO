@@ -3,93 +3,79 @@ import os
 def prikazi_tabelu(podaci):
     print("\n#Br.Narudžbe | T-Dolaska | T-Pripreme | T-Kompletiranja | Ukupno-TAT | T-Čekanja")
     print("-" * 85)
-    
-    ukupni_tat = 0
-    ukupno_cekanje = 0
-    n = len(podaci)
-    
+    ukupni_tat, ukupno_cekanje = 0, 0
     for p in podaci:
         print(f"{p['id']:<12} | {p['at']:<9} | {p['bt']:<10} | {p['ct']:<14} | {p['tat']:<10} | {p['wt']}")
-        ukupni_tat += p['tat']
-        ukupno_cekanje += p['wt']
-    
+        ukupni_tat += p['tat']; ukupno_cekanje += p['wt']
     print("-" * 85)
-    print(f"Prosječno vrijeme čekanja = {ukupno_cekanje / n:.2f} (min)")
-    print(f"Prosječno ukupno vrijeme izvršavanja (TAT) = {ukupni_tat / n:.2f} (min)")
+    print(f"Prosječno vrijeme čekanja = {ukupno_cekanje / len(podaci):.2f} (min)")
+    print(f"Prosječno ukupno vrijeme izvršavanja (TAT) = {ukupni_tat / len(podaci):.2f} (min)")
     input("\nPress any key to continue...")
 
 def sjf_non_preemptive():
-    print("\n--- SJF Non-Preemptive (Dostava hrane) ---")
     n = int(input("Unesite ukupan broj narudžbi: "))
     procesi = []
-    
     for i in range(n):
-        print(f"Narudžba {i+1}:")
-        at = int(input("  Vrijeme dolaska/dobivanja narudžbe: "))
-        bt = int(input("  Vrijeme pripremanja (izraženo u minutama): "))
+        at = int(input(f"Vrijeme dolaska narudžbe {i+1}: "))
+        bt = int(input(f"Vrijeme pripreme narudžbe {i+1}: "))
         procesi.append({'id': i+1, 'at': at, 'bt': bt, 'zavrsen': False})
-
-    vrijeme = 0
-    zavrseni_broj = 0
-    rezultati = []
-
-    while zavrseni_broj < n:
+    
+    vrijeme, zavrseni, rezultati = 0, 0, []
+    while zavrseni < n:
         kandidati = [p for p in procesi if p['at'] <= vrijeme and not p['zavrsen']]
-        
         if not kandidati:
-            vrijeme += 1
-            continue
-        
+            vrijeme += 1; continue
         odabrani = min(kandidati, key=lambda x: x['bt'])
-        
         odabrani['zavrsen'] = True
         vrijeme += odabrani['bt']
-        
         odabrani['ct'] = vrijeme
         odabrani['tat'] = odabrani['ct'] - odabrani['at']
         odabrani['wt'] = odabrani['tat'] - odabrani['bt']
-        
-        rezultati.append(odabrani)
-        zavrseni_broj += 1
-    
-    rezultati.sort(key=lambda x: x['id'])
+        rezultati.append(odabrani); zavrseni += 1
     prikazi_tabelu(rezultati)
 
 def srtf_preemptive():
-    print("\n--- SRTF Preemptive (Efikasna priprema u kuhinji) ---")
     n = int(input("Unesite ukupan broj narudžbi: "))
     procesi = []
-    
     for i in range(n):
-        print(f"Narudžba {i+1}:")
-        at = int(input("  Vrijeme dolaska/dobivanja narudžbe: "))
-        bt = int(input("  Vrijeme pripremanja (izraženo u minutama): "))
+        at = int(input(f"Vrijeme dolaska {i+1}: "))
+        bt = int(input(f"Vrijeme pripreme {i+1}: "))
         procesi.append({'id': i+1, 'at': at, 'bt': bt, 'preostalo': bt})
-
-    vrijeme = 0
-    zavrseni_broj = 0
-    rezultati = []
-
-    while zavrseni_broj < n:
+    
+    vrijeme, zavrseni, rezultati = 0, 0, []
+    while zavrseni < n:
         kandidati = [p for p in procesi if p['at'] <= vrijeme and p['preostalo'] > 0]
-        
         if not kandidati:
-            vrijeme += 1
-            continue
-            
+            vrijeme += 1; continue
         odabrani = min(kandidati, key=lambda x: x['preostalo'])
-        
-        vrijeme += 1
-        odabrani['preostalo'] -= 1
-        
+        vrijeme += 1; odabrani['preostalo'] -= 1
         if odabrani['preostalo'] == 0:
             odabrani['ct'] = vrijeme
             odabrani['tat'] = odabrani['ct'] - odabrani['at']
             odabrani['wt'] = odabrani['tat'] - odabrani['bt']
-            rezultati.append(odabrani)
-            zavrseni_broj += 1
-            
-    rezultati.sort(key=lambda x: x['id'])
+            rezultati.append(odabrani); zavrseni += 1
+    prikazi_tabelu(rezultati)
+
+def priority_scheduling():
+    n = int(input("Unesite ukupan broj narudžbi: "))
+    procesi = []
+    for i in range(n):
+        at = int(input(f"Vrijeme dolaska {i+1}: "))
+        bt = int(input(f"Vrijeme pripreme {i+1}: "))
+        pr = int(input(f"Prioritet (0-Najveći, 2-Najmanji): "))
+        procesi.append({'id': i+1, 'at': at, 'bt': bt, 'pr': pr, 'zavrsen': False})
+    
+    vrijeme, zavrseni, rezultati = 0, 0, []
+    while zavrseni < n:
+        kandidati = [p for p in procesi if p['at'] <= vrijeme and not p['zavrsen']]
+        if not kandidati:
+            vrijeme += 1; continue
+        odabrani = min(kandidati, key=lambda x: x['pr'])
+        odabrani['zavrsen'] = True; vrijeme += odabrani['bt']
+        odabrani['ct'] = vrijeme
+        odabrani['tat'] = odabrani['ct'] - odabrani['at']
+        odabrani['wt'] = odabrani['tat'] - odabrani['bt']
+        rezultati.append(odabrani); zavrseni += 1
     prikazi_tabelu(rezultati)
 
 def main():
@@ -111,8 +97,7 @@ def main():
         elif izbor == '2':
             srtf_preemptive()
         elif izbor == '3':
-            print("Opcija 3 odabrana (U izradi...)")
-            input("Press enter...")
+            priority_scheduling()
         elif izbor == '4':
             print("Hvala na korištenju sistema. Prijatno!")
             break
