@@ -15,6 +15,8 @@ def prikazi_tabelu(podaci):
     print(f"Prosječno ukupno vrijeme izvršavanja (TAT) = {ukupni_tat / n:.2f} (min)")
     input("\nPress any key to continue...")
 
+
+
 def sjf_non_preemptive():
     n = int(input("Unesite ukupan broj narudžbi: "))
     procesi = []
@@ -45,6 +47,10 @@ def sjf_non_preemptive():
         rezultati.append(odabrani)
         zavrseni = zavrseni + 1
     prikazi_tabelu(rezultati)
+
+
+
+
 
 def srtf_preemptive():
     n = int(input("Unesite ukupan broj narudžbi: "))
@@ -78,6 +84,10 @@ def srtf_preemptive():
             zavrseni = zavrseni + 1
     prikazi_tabelu(rezultati)
 
+
+
+
+
 def priority_scheduling():
     n = int(input("Unesite ukupan broj narudžbi: "))
     procesi = []
@@ -110,6 +120,10 @@ def priority_scheduling():
         zavrseni = zavrseni + 1
     prikazi_tabelu(rezultati)
 
+
+
+
+
 def main():
     while True:
         os.system('cls' if os.name == 'nt' else 'clear')
@@ -132,8 +146,8 @@ def main():
             print("Hvala na korištenju sistema. Prijatno!")
             break
         else:
-            print("Nevalidna opcija, pokušajte ponovo.")
-            input("Press enter...")
+            print("\nGreška: Nevalidna opcija! Pokušajte ponovo sa 1, 2, 3 ili 4.")
+            input("Pritisnite Enter za povratak na meni...")
 
 if __name__ == "__main__":
     main()
